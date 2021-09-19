@@ -1,49 +1,39 @@
-import { Button, Checkbox, Form, Input } from 'antd'
-import React from 'react'
-import { useDispatch } from 'react-redux'
-import { ActionCreator } from '../store/reducers/action-creater'
+import { Button, Form, Input, Row } from 'antd'
+import React, { useState } from 'react'
+import { useActions } from '../hooks/useActions'
+import { useTypedSelector } from '../hooks/useTypedSelector'
 import { rules } from '../utils/rules'
 
 const LoginForm: React.FC = () => {
-	const dispatch = useDispatch()
+	const { isLoading, error } = useTypedSelector(({ auth }) => auth)
+	const [username, setUsername] = useState('')
+	const [password, setPassword] = useState('')
+
+	const { login } = useActions()
 
 	const onFinish = () => {
-    dispatch(ActionCreator.login('admin', '1234'))
-  }
+		login(username, password)
+	}
 
 	const onFinishFailed = () => {}
 
 	return (
 		<Form onFinish={onFinish} onFinishFailed={onFinishFailed} autoComplete='off'>
 			<Form.Item label='Username' name='username' rules={[rules.required('Please input your username!')]}>
-				<Input />
+				<Input onChange={(e) => setUsername(e.target.value)} value={username} />
 			</Form.Item>
 
 			<Form.Item label='Password' name='password' rules={[rules.required('Please input your password!')]}>
-				<Input.Password />
+				<Input.Password onChange={(e) => setPassword(e.target.value)} value={password} />
 			</Form.Item>
 
-			<Form.Item
-				name='remember'
-				valuePropName='checked'
-				wrapperCol={{
-					offset: 8,
-					span: 16,
-				}}
-			>
-				<Checkbox>Remember me</Checkbox>
-			</Form.Item>
+			{error && <div style={{ color: 'red' }}>{error}</div>}
 
-			<Form.Item
-				wrapperCol={{
-					offset: 8,
-					span: 16,
-				}}
-			>
-				<Button type='primary' htmlType='submit'>
+			<Row justify='end'>
+				<Button type='primary' htmlType='submit' loading={isLoading}>
 					Login
 				</Button>
-			</Form.Item>
+			</Row>
 		</Form>
 	)
 }
